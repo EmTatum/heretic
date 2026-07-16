@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Set global random seeds for deterministic behavior
+# Set global random seeds for deterministic behavior in parent process
 os.environ["PYTHONHASHSEED"] = "0"
 
 try:
@@ -47,6 +47,10 @@ project_directory = script_directory.parent
 
 tests_failed = False
 
+# Create environment with deterministic settings for subprocesses
+test_env = os.environ.copy()
+test_env["PYTHONHASHSEED"] = "0"
+
 for test_directory in script_directory.iterdir():
     if test_directory.is_dir():
         config_file = test_directory / "config.toml"
@@ -69,7 +73,7 @@ for test_directory in script_directory.iterdir():
                     "heretic",
                 ],
                 check=True,
-                env={**os.environ, "PYTHONHASHSEED": "0"},
+                env=test_env,
             )
 
             print()
