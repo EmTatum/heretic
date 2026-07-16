@@ -2,9 +2,31 @@
 # Copyright (C) 2025-2026  Philipp Emanuel Weidmann <pew@worldwidemann.com> + contributors
 
 import hashlib
+import os
 import subprocess
 import sys
 from pathlib import Path
+
+# Set global random seeds for deterministic behavior
+os.environ["PYTHONHASHSEED"] = "0"
+
+try:
+    import numpy as np
+    np.random.seed(0)
+except ImportError:
+    pass
+
+try:
+    import torch
+    torch.manual_seed(0)
+    torch.cuda.manual_seed_all(0)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+except ImportError:
+    pass
+
+import random
+random.seed(0)
 
 
 # TODO: Replace this with hashlib.file_digest when we drop support for Python 3.10.
@@ -47,6 +69,7 @@ for test_directory in script_directory.iterdir():
                     "heretic",
                 ],
                 check=True,
+                env={**os.environ, "PYTHONHASHSEED": "0"},
             )
 
             print()
